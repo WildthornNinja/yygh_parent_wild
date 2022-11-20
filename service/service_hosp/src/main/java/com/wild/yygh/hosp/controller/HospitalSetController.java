@@ -85,5 +85,38 @@ public class HospitalSetController {
             return R.error();
         }
     }
+    /**
+     * 批量删除
+     */
+    @ApiOperation(value = "批量删除医院设置")
+    @DeleteMapping("/bachRemove")
+    public R bachRemove(@RequestBody List<Long> ids){
+        //参数判空
+        if(ids!=null){
+            boolean result = hospitalSetService.removeByIds(ids);
+            if(result){
+                return R.ok();
+            }else{
+                return R.error();
+            }
+        }else {
+            return R.error();
+        }
+    }
+    /**
+     * 医院设置锁定和解锁
+     */
+    @ApiOperation("医院设置锁定和解锁状态")
+    @PutMapping("/lock/{id}/{status}")
+    public R lockHospSet(@PathVariable Long id,@PathVariable Integer status){
+        //考虑乐观锁状态，先查后改
+        //1.根据id查询医院信息
+        HospitalSet hospitalSet = hospitalSetService.getById(id);
+        //2.设置状态
+        hospitalSet.setStatus(status);
+        //3.更新操作
+        hospitalSetService.updateById(hospitalSet);
+        return R.ok();
+    }
 
 }
