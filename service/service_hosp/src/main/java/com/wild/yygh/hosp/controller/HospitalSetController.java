@@ -28,6 +28,8 @@ public class HospitalSetController {
     @ApiOperation(value = "医院设置列表")
     @GetMapping("/findAll")
     public R findAll() {
+        //测试异常处理
+        int i=1/0;
         List<HospitalSet> hospitalSetList = hospitalSetService.list();
         return R.ok().data("hospitalSetList",hospitalSetList);
     }
