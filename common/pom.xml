@@ -14,6 +14,7 @@
     <modules>
         <module>service_utils</module>
     </modules>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -34,10 +35,14 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
-        <!--knife4j-->
+        <!--swagger-->
         <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
         </dependency>
 
         <dependency>
@@ -45,6 +50,5 @@
             <artifactId>fastjson</artifactId>
         </dependency>
     </dependencies>
-
 
 </project>
