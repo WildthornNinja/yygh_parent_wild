@@ -1,13 +1,16 @@
 package com.wild.yygh.hosp.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wild.yygh.common.R;
 import com.wild.yygh.hosp.service.HospitalSetService;
 import com.wild.yygh.model.hosp.HospitalSet;
+import com.wild.yygh.vo.hosp.HospitalSetQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -132,6 +135,41 @@ public class HospitalSetController {
         Page<HospitalSet> pageParam = new Page<>(page,limit);
         //2.执行查询操作
         hospitalSetService.page(pageParam);
+        //返回分页结果集
+        List<HospitalSet> records = pageParam.getRecords();
+        long total = pageParam.getTotal();
+        return R.ok().data("records",records).data("total",total);
+    }
+    /**
+     * 分页-带条件 查询
+     */
+    @ApiOperation("分页-带条件 查询")
+    @PostMapping("/{page}/{limit}")
+    public R pageQuery(@ApiParam(name = "page",value = "当前页码",required = true)
+                      @PathVariable Long page,
+                       @ApiParam(name = "limit",value = "每条记录数",required = true)
+                      @PathVariable Long limit,
+                       @ApiParam(name = "hospitalSetQueryVo",value= "查询条件[查询对象]",required = false)
+                       @RequestBody HospitalSetQueryVo hospitalSetQueryVo){
+        //1.设置分页条件
+        Page<HospitalSet> pageParam = new Page<>(page,limit);
+        //2.准备查询条件
+        QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
+        //参数判空
+        if(hospitalSetQueryVo!=null){
+            String hoscode = hospitalSetQueryVo.getHoscode();
+            String hosname = hospitalSetQueryVo.getHosname();
+            if (!StringUtils.isEmpty(hosname)) {
+                queryWrapper.like("hosname", hosname);
+            }
+
+            if (!StringUtils.isEmpty(hoscode) ) {
+                queryWrapper.eq("hoscode", hoscode);
+            }
+            hospitalSetService.page(pageParam, queryWrapper);
+        }else{
+            hospitalSetService.page(pageParam,queryWrapper);
+        }
         //返回分页结果集
         List<HospitalSet> records = pageParam.getRecords();
         long total = pageParam.getTotal();
