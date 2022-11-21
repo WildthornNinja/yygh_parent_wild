@@ -3,6 +3,7 @@ package com.wild.yygh.hosp.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wild.yygh.common.R;
+import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.hosp.service.HospitalSetService;
 import com.wild.yygh.model.hosp.HospitalSet;
 import com.wild.yygh.vo.hosp.HospitalSetQueryVo;
@@ -29,7 +30,12 @@ public class HospitalSetController {
     @GetMapping("/findAll")
     public R findAll() {
         //测试异常处理
-        int i=1/0;
+        try {
+            int i=1/0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new YyghException(20001,"自定义异常处理");
+        }
         List<HospitalSet> hospitalSetList = hospitalSetService.list();
         return R.ok().data("hospitalSetList",hospitalSetList);
     }

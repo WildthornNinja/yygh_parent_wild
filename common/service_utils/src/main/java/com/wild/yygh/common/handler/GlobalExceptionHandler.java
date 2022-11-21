@@ -2,6 +2,7 @@ package com.wild.yygh.common.handler;
 
 
 import com.wild.yygh.common.R;
+import com.wild.yygh.common.exception.YyghException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,5 +30,14 @@ public class GlobalExceptionHandler {
 	public R error(ArithmeticException e){
 		e.printStackTrace();
 		return R.error().message("特殊异常处理");
+	}
+	/**
+	 * 特殊异常处理
+	 */
+	@ExceptionHandler(YyghException.class)
+	//@ResponseBody
+	public R error(YyghException e){
+		e.printStackTrace();
+		return R.error().code(e.getCode()).message(e.getMsg());
 	}
 }
