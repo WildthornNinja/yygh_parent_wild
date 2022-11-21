@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 		return R.error().message("特殊异常处理");
 	}
 	/**
-	 * 特殊异常处理
+	 * 自定义异常处理
 	 */
 	@ExceptionHandler(YyghException.class)
 	//@ResponseBody
