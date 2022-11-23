@@ -166,24 +166,24 @@ public class HospitalSetController {
         hospitalSetService.updateById(hospitalSet);
         return R.ok();
     }
-    /**
-     * 分页查询
-     */
-    @ApiOperation("分页查询")
-    @GetMapping("/{page}/{limit}")
-    public R pageFind(@ApiParam(name = "page",value = "当前页码",required = true)
-                      @PathVariable Long page,
-                      @ApiParam(name = "limit",value = "每条记录数",required = true)
-                      @PathVariable Long limit){
-        //1.设置分页条件
-        Page<HospitalSet> pageParam = new Page<>(page,limit);
-        //2.执行查询操作
-        hospitalSetService.page(pageParam);
-        //返回分页结果集
-        List<HospitalSet> records = pageParam.getRecords();
-        long total = pageParam.getTotal();
-        return R.ok().data("records",records).data("total",total);
-    }
+//    /**
+//     * 分页查询
+//     */
+//    @ApiOperation("分页查询")
+//    @GetMapping("/{page}/{limit}")
+//    public R pageFind(@ApiParam(name = "page",value = "当前页码",required = true)
+//                      @PathVariable Long page,
+//                      @ApiParam(name = "limit",value = "每条记录数",required = true)
+//                      @PathVariable Long limit){
+//        //1.设置分页条件
+//        Page<HospitalSet> pageParam = new Page<>(page,limit);
+//        //2.执行查询操作
+//        hospitalSetService.page(pageParam);
+//        //返回分页结果集
+//        List<HospitalSet> records = pageParam.getRecords();
+//        long total = pageParam.getTotal();
+//        return R.ok().data("records",records).data("total",total);
+//    }
     /**
      * 分页-带条件 查询
      */
