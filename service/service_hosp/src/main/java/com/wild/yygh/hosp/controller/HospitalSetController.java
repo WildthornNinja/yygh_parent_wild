@@ -14,14 +14,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController //医院设置接口
 @RequestMapping("/admin/hosp/hospitalSet")
 @Api(tags = "首页模块")
+@CrossOrigin //解决跨域问题
 public class HospitalSetController {
     @Autowired
     private HospitalSetService hospitalSetService;
+
+    /**
+     * 实现模拟登陆接口
+     */
+    @ApiOperation("模拟登陆")
+    @PostMapping("/login")
+    public R login(){
+        //返回数据格式:{"code":20000,"data":{"token":"admin-token"}}
+        return R.ok().data("token","admin-token");
+    }
+    @ApiOperation("模拟获取并返回用户信息")
+    @GetMapping("/info")
+    public R getInfo(){
+        /**
+         * 返回数据格式
+         * {"code":20000,"data":{"roles":["admin"],
+         * "introduction":"I am a super administrator",
+         * "avatar":"https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
+         * "name":"Super Admin"}}
+         */
+        //定义map集合封装返回结果信息
+        Map<String,Object> map = new HashMap<>();
+        map.put("roles","WildThorn");
+        map.put("introduction","Fight Procrastination");
+        map.put("avatar","https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        map.put("name","Wild Thorn");
+        return R.ok().data(map);
+    }
+    @ApiOperation("模拟退出登录")
+    @PostMapping("/logout")
+    public R logout(){
+        return  R.ok();
+    }
 
     /**
      * 查询所有医院设置
