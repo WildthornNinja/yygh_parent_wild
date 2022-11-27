@@ -1,5 +1,6 @@
 package com.wild.yygh.cmn.controller;
 
+import com.sun.deploy.net.HttpResponse;
 import com.wild.yygh.cmn.service.DictService;
 import com.wild.yygh.common.R;
 import com.wild.yygh.model.cmn.Dict;
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Api(tags = "数据字典接口")
@@ -27,6 +29,16 @@ public class DictController {
         List<Dict> dictList = dictService.findChildData(id);
 
         return R.ok().data("dictList",dictList);
+    }
+    /**
+     * 导出数据
+     * 从Response对象中获取数据，具体在业务层实现
+     */
+    @ApiOperation("导出数据")
+    @GetMapping("/exportData")
+    public void exportData(HttpServletResponse response){
+        dictService.exportData(response);
+
     }
 
 

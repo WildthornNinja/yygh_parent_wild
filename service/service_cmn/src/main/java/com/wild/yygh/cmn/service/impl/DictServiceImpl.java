@@ -1,13 +1,21 @@
 package com.wild.yygh.cmn.service.impl;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.sun.deploy.net.HttpResponse;
+import com.sun.deploy.net.URLEncoder;
 import com.wild.yygh.cmn.mapper.DictMapper;
 import com.wild.yygh.cmn.service.DictService;
 import com.wild.yygh.model.cmn.Dict;
+import com.wild.yygh.vo.cmn.DictEeVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,8 +42,52 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
             dict.setHasChildren(hashChild);
         }
 
-
         return dictList;
+    }
+
+    /**
+     * 导出数据
+     * 从Response对象中获取数据，具体在业务层实现
+     */
+    @Override
+    public void exportData(HttpServletResponse response) {
+        try {
+            /**
+             * 1.设置response响应对象的基本参数
+             */
+            //设置媒体类型
+            response.setContentType("application/vnd.ms-excel");
+            //设置字符集
+            response.setCharacterEncoding("utf-8");
+            //设置文件名
+            //这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+            String fileName = URLEncoder.encode("数据字典", "UTF-8");
+            //设置响应头
+            response.setHeader("Content-disposition", "attachment;filename="+ fileName + ".xlsx");
+
+            /**
+             * 2.查询所有的字典数据
+             */
+            List<Dict> dictList = baseMapper.selectList(null);
+
+            /**
+             * 3.【数据对象转型】将数据库查询结果集Dict对象 转型为 DictEeVo对象
+             */
+            List<DictEeVo> dictEeVoList = new ArrayList<>();
+            for (Dict dict : dictList) {
+                DictEeVo dictEeVo = new DictEeVo();
+                //使用BeanUtils工具类复制对象
+                BeanUtils.copyProperties(dict,dictEeVo);
+                dictEeVoList.add(dictEeVo);
+            }
+            /**
+             * 4.调用EasyExcel方法生成文件
+             */
+            EasyExcel.write(response.getOutputStream(),DictEeVo.class).sheet("数据接口").doWrite(dictEeVoList);
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     /**
