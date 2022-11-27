@@ -124,4 +124,19 @@ public class TestMongo2 {
         userRepository.deleteById("63817b8256970937407e46ca");
     }
 
+    /**
+     * 符合SpringData方法规范的接口方法
+     */
+    @GetMapping("/testMethod1")
+    public void testMethod1(){
+        List<User> userList = userRepository.findByName("张三");
+        userList.forEach(System.out::println);
+
+    }
+    @GetMapping("/testMethod2")
+    public void testMethod2() {
+        List<User> userList = userRepository.findByNameLike("张");
+        userList.forEach(System.out::println);
+    }
+
 }
