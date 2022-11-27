@@ -42,7 +42,4 @@ public class DictListener extends AnalysisEventListener<DictEeVo> {
 
     }
 
-
-
-
 }
