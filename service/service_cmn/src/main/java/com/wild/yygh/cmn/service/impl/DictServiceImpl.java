@@ -5,16 +5,20 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sun.deploy.net.HttpResponse;
 import com.sun.deploy.net.URLEncoder;
+import com.wild.yygh.cmn.listener.DictListener;
 import com.wild.yygh.cmn.mapper.DictMapper;
 import com.wild.yygh.cmn.service.DictService;
+import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.model.cmn.Dict;
 import com.wild.yygh.vo.cmn.DictEeVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +26,8 @@ import java.util.List;
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
     @Autowired
     private DictMapper dictMapper;
+    @Autowired
+    private DictListener dictListener;
 
     /**
      * 根据数据id查询子数据列表
@@ -88,6 +94,24 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 导入数据
+     * @param file
+     */
+    @Override
+    public void importData(MultipartFile file) {
+        try {
+            //1.获取输入流
+            InputStream inputStream = file.getInputStream();
+            //2.调用EasyExcel方法读取数据
+            EasyExcel.read(inputStream,DictEeVo.class,dictListener).sheet().doRead();
+        }catch (IOException e){
+            e.printStackTrace();
+            throw new YyghException(20001,"导入失败");
+        }
+
     }
 
     /**
