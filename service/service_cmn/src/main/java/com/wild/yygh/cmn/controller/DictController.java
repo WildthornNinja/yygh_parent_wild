@@ -21,7 +21,7 @@ public class DictController {
      * 根据数据id查询子数据列表
      */
     @ApiOperation("根据数据id查询子数据列表")
-    @GetMapping("findChildData/{id}")
+    @GetMapping("/findChildData/{id}")
     public R findChildData(@PathVariable Long id){
         //调用service接口方法，查询该id数据的子数据列表
         List<Dict> dictList = dictService.findChildData(id);
