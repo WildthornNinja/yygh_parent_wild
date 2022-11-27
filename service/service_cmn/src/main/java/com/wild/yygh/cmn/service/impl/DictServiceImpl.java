@@ -13,6 +13,7 @@ import com.wild.yygh.model.cmn.Dict;
 import com.wild.yygh.vo.cmn.DictEeVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +36,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
      * @return
      */
     @Override
+    //redis k:v  k=dict::selectIndexList value=要缓存的数据字典列表
+    @Cacheable(value = "dict", key = "'selectIndexList'+#id")
     public List<Dict> findChildData(Long id) {
         //1.通过父id查询出 数据集合
         QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
