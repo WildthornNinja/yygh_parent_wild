@@ -1,6 +1,7 @@
 package com.wild.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.hosp.repository.ScheduleRepository;
 import com.wild.yygh.hosp.service.ScheduleService;
 import com.wild.yygh.model.hosp.Department;
@@ -78,5 +79,22 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         return schedulePage;
 
+    }
+
+    /**
+     * 删除排班
+     * @param hoscode
+     * @param hosScheduleId
+     */
+    @Override
+    public void remove(String hoscode, String hosScheduleId) {
+        //先查询后删除
+        //1.根据 hoscode、hosScheduleId
+        Schedule schedule = scheduleRepository.getScheduleByHoscodeAndHosScheduleId(hoscode,hosScheduleId);
+        if(schedule ==null){
+            throw new YyghException(20001,"排班信息有误");
+        }
+        //2.根据id删除科室
+        scheduleRepository.deleteById(schedule.getId());
     }
 }

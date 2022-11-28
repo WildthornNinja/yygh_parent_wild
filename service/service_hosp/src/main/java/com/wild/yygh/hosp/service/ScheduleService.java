@@ -20,4 +20,11 @@ public interface ScheduleService {
      * @return
      */
     Page<Schedule> selectPage(int page, int limit, ScheduleQueryVo scheduleQueryVo);
+
+    /**
+     * 删除排班
+     * @param hoscode
+     * @param hosScheduleId
+     */
+    void remove(String hoscode, String hosScheduleId);
 }

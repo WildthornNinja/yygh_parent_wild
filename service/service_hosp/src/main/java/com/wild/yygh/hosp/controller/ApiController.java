@@ -179,7 +179,6 @@ public class ApiController {
         checkSign(hoscode,sign);
         //分页参数验空 封装查询条件
 
-        //分页参数验空 封装查询条件
         int page = StringUtils.isEmpty((String)paramMap.get("page"))?1:
                 Integer.parseInt((String)paramMap.get("page"));
         //判断每页记录数limit
@@ -191,7 +190,6 @@ public class ApiController {
         //4.调用接口方法
         Page<Schedule> pageModel = scheduleService.selectPage(page,limit,scheduleQueryVo);
         return Result.ok(pageModel);
-
     }
     /**
      * 抽取公共签名校验
@@ -206,4 +204,23 @@ public class ApiController {
             throw new YyghException(20001,"签名校验失败");
         }
     }
+    @ApiOperation(value = "删除排班")
+    @PostMapping("/schedule/remove")
+    public Result removeSchedule(HttpServletRequest request) {
+        //1.获取并转化参数
+        Map<String,Object> paramMap = HttpRequestHelper.switchMap(request.getParameterMap());
+        //2.参数校验
+        String hoscode = (String)paramMap.get("hoscode");
+        String sign = (String) paramMap.get("sign");
+        String hosScheduleId = (String) paramMap.get("hosScheduleId");
+        if(StringUtils.isEmpty(hoscode)){
+            throw new YyghException(20001,"失败");
+        }
+        //3.签名校验
+        checkSign(hoscode,sign);
+        //4.调用接口方法
+        scheduleService.remove(hoscode,hosScheduleId);
+        return Result.ok();
+    }
+
 }
