@@ -123,6 +123,26 @@ public class ApiController {
         Page<Department> pageModel = departmentService.selectPage(page,limit,departmentQueryVo);
         return Result.ok(pageModel);
     }
+    @ApiOperation(value = "删除科室")
+    @PostMapping("/department/remove")
+    public Result removeDepartment(HttpServletRequest request) {
+        //1.获取并转化参数
+        Map<String,Object> paramMap = HttpRequestHelper.switchMap(request.getParameterMap());
+        //2.参数校验
+        String hoscode = (String)paramMap.get("hoscode");
+        String sign = (String) paramMap.get("sign");
+        String depcode = (String) paramMap.get("depcode");
+        if(StringUtils.isEmpty(hoscode)){
+            throw new YyghException(20001,"失败");
+        }
+        //3.签名校验
+        checkSign(hoscode,sign);
+        //4.调用接口方法
+        departmentService.remove(hoscode,depcode);
+        return Result.ok();
+
+
+    }
 
 
 

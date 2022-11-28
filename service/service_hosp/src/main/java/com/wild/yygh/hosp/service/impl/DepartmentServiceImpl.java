@@ -1,6 +1,7 @@
 package com.wild.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.hosp.repository.DepartmentRepository;
 import com.wild.yygh.hosp.service.DepartmentService;
 import com.wild.yygh.model.hosp.Department;
@@ -76,5 +77,22 @@ public class DepartmentServiceImpl implements DepartmentService {
         Page<Department> departmentPage = departmentRepository.findAll(example,pageable);
 
         return departmentPage;
+    }
+
+    /**
+     * 删除科室
+     * @param hoscode
+     * @param depcode
+     */
+    @Override
+    public void remove(String hoscode, String depcode) {
+        //先查询后删除
+        //1.根据 hoscode、depcode
+        Department department = departmentRepository.getDepartmentByHoscodeAndDepcode(hoscode,depcode);
+        if(department ==null){
+            throw new YyghException(20001,"科室信息有误");
+        }
+        //2.根据id删除科室
+        departmentRepository.deleteById(department.getId());
     }
 }

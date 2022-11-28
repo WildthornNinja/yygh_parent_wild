@@ -22,4 +22,11 @@ public interface DepartmentService {
      * @return
      */
     Page<Department> selectPage(int page, int limit, DepartmentQueryVo departmentQueryVo);
+
+    /**
+     * 删除科室
+     * @param hoscode
+     * @param depcode
+     */
+    void remove(String hoscode, String depcode);
 }
