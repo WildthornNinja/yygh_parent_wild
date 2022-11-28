@@ -6,6 +6,7 @@ import com.wild.yygh.common.R;
 import com.wild.yygh.model.cmn.Dict;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,12 +48,29 @@ public class DictController {
      */
     @ApiOperation("导入数据")
     @PostMapping("/importData")
-    public R importData(MultipartFile file){
+    public R importData(MultipartFile file) {
         dictService.importData(file);
         return R.ok();
 
     }
 
+    @ApiOperation(value = "获取数据字典名称")
+    @GetMapping(value = "/getName/{parentDictCode}/{value}")
+    public String getName(
+            @ApiParam(name = "parentDictCode", value = "上级编码", required = true)
+            @PathVariable("parentDictCode") String parentDictCode,
+            @ApiParam(name = "value", value = "值", required = true)
+            @PathVariable("value") String value) {
+        return dictService.getNameByParentDictCodeAndValue(parentDictCode, value);
+    }
+
+    @ApiOperation(value = "获取数据字典名称[国标数据]")
+    @GetMapping(value = "/getName/{value}")
+    public String getName(
+            @ApiParam(name = "value", value = "值", required = true)
+            @PathVariable("value") String value) {
+        return dictService.getNameByParentDictCodeAndValue("", value);
+    }
 
 
 }

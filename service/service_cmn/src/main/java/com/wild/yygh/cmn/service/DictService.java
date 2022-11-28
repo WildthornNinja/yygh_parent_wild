@@ -23,7 +23,17 @@ public interface DictService extends IService<Dict> {
 
     /**
      * 导入数据
+     *
      * @param file
      */
     void importData(MultipartFile file);
+
+    /**
+     * 获取数据字典名称
+     *
+     * @param parentDictCode
+     * @param value
+     * @return
+     */
+    String getNameByParentDictCodeAndValue(String parentDictCode, String value);
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -109,23 +110,68 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
             //1.获取输入流
             InputStream inputStream = file.getInputStream();
             //2.调用EasyExcel方法读取数据
-            EasyExcel.read(inputStream,DictEeVo.class,dictListener).sheet().doRead();
-        }catch (IOException e){
+            EasyExcel.read(inputStream, DictEeVo.class, dictListener).sheet().doRead();
+        } catch (IOException e) {
             e.printStackTrace();
-            throw new YyghException(20001,"导入失败");
+            throw new YyghException(20001, "导入失败");
         }
 
     }
 
     /**
+     * 获取数据字典名称
+     *
+     * @param parentDictCode
+     * @param value
+     * @return
+     */
+    @Override
+    public String getNameByParentDictCodeAndValue(String parentDictCode, String value) {
+        //判断是国标数据or 自定义数据
+        if (StringUtils.isEmpty(parentDictCode)) {
+            //为国标数据
+            Dict dict = baseMapper.selectOne(new QueryWrapper<Dict>().eq("value", value));
+            //判空
+            if (dict != null) {
+                return dict.getName();
+            }
+        } else {
+            //自定义数据
+            //分两步进行查询
+            Dict dictByDictCode = this.getDictByDictCode(parentDictCode);
+            Dict dict = baseMapper.selectOne(new QueryWrapper<Dict>()
+                    .eq("value", value)
+                    .eq("parent_id", dictByDictCode.getId()));
+            //判空
+            if (dict != null) {
+                return dict.getName();
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * 通过字典编码dict id 查询字典信息
+     *
+     * @param parentDictCode
+     * @return
+     */
+    private Dict getDictByDictCode(String parentDictCode) {
+        Dict dict = baseMapper.selectOne(new QueryWrapper<Dict>().eq("dict_code", parentDictCode));
+        return dict;
+    }
+
+    /**
      * 判断是该dict对象否有子数据
+     *
      * @param id
      * @return
      */
     private boolean isChildren(Long id) {
         QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
         //通过parent_id 父节点 该节点的子节点个数
-        queryWrapper.eq("parent_id",id);
+        queryWrapper.eq("parent_id", id);
         Integer count = baseMapper.selectCount(queryWrapper);
         //若count>0 则表明该dict对象有子节点数据
         return count>0;

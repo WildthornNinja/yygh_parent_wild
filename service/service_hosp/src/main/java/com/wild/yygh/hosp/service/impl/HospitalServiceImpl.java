@@ -62,7 +62,6 @@ public class HospitalServiceImpl implements HospitalService{
 
     /**
      * 带条件带分页查询医院列表
-     *
      * @param page
      * @param limit
      * @param hospitalQueryVo
