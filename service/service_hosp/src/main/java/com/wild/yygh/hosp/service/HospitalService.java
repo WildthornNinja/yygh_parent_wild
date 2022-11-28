@@ -17,4 +17,5 @@ public interface HospitalService {
      * @return
      */
     Hospital getHospByHoscode(String hoscode);
+
 }

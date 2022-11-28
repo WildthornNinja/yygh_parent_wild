@@ -3,6 +3,7 @@ package com.wild.yygh.hosp.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.wild.yygh.hosp.repository.HospitalRepository;
 import com.wild.yygh.hosp.service.HospitalService;
+import com.wild.yygh.model.hosp.Department;
 import com.wild.yygh.model.hosp.Hospital;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,4 +56,6 @@ public class HospitalServiceImpl implements HospitalService{
         Hospital hospital = hospitalRepository.getByHoscode(hoscode);
         return hospital;
     }
+
+
 }
