@@ -7,10 +7,15 @@ import com.wild.yygh.hosp.service.HospitalService;
 import com.wild.yygh.hosp.service.HospitalSetService;
 import com.wild.yygh.hosp.utils.HttpRequestHelper;
 import com.wild.yygh.hosp.utils.MD5;
+import com.wild.yygh.model.hosp.Department;
 import com.wild.yygh.model.hosp.Hospital;
+import com.wild.yygh.vo.acl.RoleQueryVo;
+import com.wild.yygh.vo.hosp.DepartmentQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -92,7 +97,32 @@ public class ApiController {
         return Result.ok();
 
     }
-
+    @ApiOperation(value = "带条件带分页查询科室信息")
+    @PostMapping("/department/list")
+    public Result department(HttpServletRequest request) {
+        //1.获取并转化参数
+        Map<String,Object> paramMap = HttpRequestHelper.switchMap(request.getParameterMap());
+        //2.参数校验
+        String hoscode = (String)paramMap.get("hoscode");
+        String sign = (String) paramMap.get("sign");
+        if(StringUtils.isEmpty(hoscode)){
+            throw new YyghException(20001,"失败");
+        }
+        //3.签名校验
+        checkSign(hoscode,sign);
+        //分页参数验空 封装查询条件
+        int page = StringUtils.isEmpty((String)paramMap.get("page"))?1:
+                Integer.parseInt((String)paramMap.get("page"));
+        //判断每页记录数limit
+        int limit = StringUtils.isEmpty((String)paramMap.get("limit"))?10:
+                Integer.parseInt((String)paramMap.get("limit"));
+        //数据封装为 Vo对象[查询条件对象]
+        DepartmentQueryVo departmentQueryVo = new DepartmentQueryVo();
+        departmentQueryVo.setHoscode(hoscode);
+        //4.调用接口方法
+        Page<Department> pageModel = departmentService.selectPage(page,limit,departmentQueryVo);
+        return Result.ok(pageModel);
+    }
 
 
 

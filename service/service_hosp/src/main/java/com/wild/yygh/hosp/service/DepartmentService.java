@@ -1,5 +1,9 @@
 package com.wild.yygh.hosp.service;
 
+import com.wild.yygh.model.hosp.Department;
+import com.wild.yygh.vo.hosp.DepartmentQueryVo;
+import org.springframework.data.domain.Page;
+
 import java.util.Map;
 
 public interface DepartmentService {
@@ -9,4 +13,13 @@ public interface DepartmentService {
      * @param paramMap
      */
     void save(Map<String, Object> paramMap);
+
+    /**
+     * 带条件带分页查询科室信息
+     * @param page
+     * @param limit
+     * @param departmentQueryVo
+     * @return
+     */
+    Page<Department> selectPage(int page, int limit, DepartmentQueryVo departmentQueryVo);
 }
