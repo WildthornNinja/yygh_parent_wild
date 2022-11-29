@@ -1,6 +1,8 @@
 package com.wild.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wild.yygh.cmn.client.DictFeignClient;
+import com.wild.yygh.enums.DictEnum;
 import com.wild.yygh.hosp.repository.HospitalRepository;
 import com.wild.yygh.hosp.service.HospitalService;
 import com.wild.yygh.model.hosp.Department;
@@ -15,12 +17,15 @@ import java.util.Date;
 import java.util.Map;
 
 @Service
-public class HospitalServiceImpl implements HospitalService{
+public class HospitalServiceImpl implements HospitalService {
     @Autowired
     private HospitalRepository hospitalRepository;
+    @Autowired
+    private DictFeignClient dictFeignClient;
 
     /**
      * 存储医院数据
+     *
      * @param paramMap
      */
     @Override
@@ -90,10 +95,35 @@ public class HospitalServiceImpl implements HospitalService{
 
         //3.查询数据
         Page<Hospital> hospitalPage = hospitalRepository.findAll(example, pageable);
-        //4. TODO 跨模块翻译字段
+        //4.跨模块翻译字段
+        hospitalPage.getContent().stream().forEach(item -> {
+            //进行远程调用,翻译字段
+            this.packHospital(item);
+        });
 
 
         return hospitalPage;
+    }
+
+    /**
+     * 远程调用翻译字段
+     *
+     * @param item
+     */
+    private Hospital packHospital(Hospital item) {
+        //翻译省市区 国标数据
+        String provinceString = dictFeignClient.getName(item.getProvinceCode());
+        //市信息
+        String cityString = dictFeignClient.getName(item.getCityCode());
+        //区信息
+        String districtString = dictFeignClient.getName(item.getDistrictCode());
+        //翻译医院等级 【自定义信息】
+        String hostypeString = dictFeignClient.getName(DictEnum.HOSTYPE.getDictCode(), item.getHostype());
+        //封装数据
+        item.getParam().put("hostypeString", hostypeString);
+        item.getParam().put("fullAddress", provinceString + cityString + districtString + item.getAddress());
+
+        return item;
     }
 
 
