@@ -5,6 +5,7 @@ import com.wild.yygh.cmn.client.DictFeignClient;
 import com.wild.yygh.enums.DictEnum;
 import com.wild.yygh.hosp.repository.HospitalRepository;
 import com.wild.yygh.hosp.service.HospitalService;
+import com.wild.yygh.model.hosp.BookingRule;
 import com.wild.yygh.model.hosp.Department;
 import com.wild.yygh.model.hosp.Hospital;
 import com.wild.yygh.vo.hosp.HospitalQueryVo;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -107,7 +109,6 @@ public class HospitalServiceImpl implements HospitalService {
 
     /**
      * 更新医院上线状态
-     *
      * @param id
      * @param status
      */
@@ -121,6 +122,26 @@ public class HospitalServiceImpl implements HospitalService {
             hospital.setUpdateTime(new Date());
             hospitalRepository.save(hospital);
         }
+    }
+
+    /**
+     * 获取医院详情
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Map<String, Object> show(String id) {
+        //1.根据医院查询医院信息，并进行字段翻译
+        Hospital hospital = this.packHospital(hospitalRepository.findById(id).get());
+        //2.从医院信息中单独取出预约规则，进行封装
+        BookingRule bookingRule = hospital.getBookingRule();
+        hospital.setBookingRule(null);
+        //3.合并封装到结果集进行返回
+        Map<String, Object> result = new HashMap<>();
+        result.put("hospital", hospital);
+        result.put("bookingRule", bookingRule);
+        return result;
     }
 
     /**

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Api(tags = "医院接口")
 @RestController
 @RequestMapping("/admin/hosp/hospital")
@@ -37,5 +39,14 @@ public class HospitalController {
             @PathVariable("status") Integer status) {
         hospitalService.updateStatus(id, status);
         return R.ok();
+    }
+
+    @ApiOperation(value = "获取医院详情")
+    @GetMapping("show/{id}")
+    public R show(
+            @ApiParam(name = "id", value = "医院id", required = true)
+            @PathVariable String id) {
+        Map<String, Object> map = hospitalService.show(id);
+        return R.ok().data(map);
     }
 }

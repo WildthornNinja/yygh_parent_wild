@@ -38,4 +38,12 @@ public interface HospitalService {
      * @param status
      */
     void updateStatus(String id, Integer status);
+
+    /**
+     * 获取医院详情
+     *
+     * @param id
+     * @return
+     */
+    Map<String, Object> show(String id);
 }
