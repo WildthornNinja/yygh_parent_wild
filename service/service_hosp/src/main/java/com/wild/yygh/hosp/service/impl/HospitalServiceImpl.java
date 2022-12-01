@@ -106,6 +106,24 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     /**
+     * 更新医院上线状态
+     *
+     * @param id
+     * @param status
+     */
+    @Override
+    public void updateStatus(String id, Integer status) {
+        if (status.intValue() == 1 || status.intValue() == 0) {
+            //先查询在更新
+            Hospital hospital = hospitalRepository.findById(id).get();
+            hospital.setStatus(status);
+            //手动更新更新时间
+            hospital.setUpdateTime(new Date());
+            hospitalRepository.save(hospital);
+        }
+    }
+
+    /**
      * 远程调用翻译字段
      *
      * @param item
