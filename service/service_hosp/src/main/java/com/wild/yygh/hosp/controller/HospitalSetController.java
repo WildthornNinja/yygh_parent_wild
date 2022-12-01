@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController //医院设置接口
 @RequestMapping("/admin/hosp/hospitalSet")
 @Api(tags = "首页模块")
-@CrossOrigin //解决跨域问题
+//@CrossOrigin //解决跨域问题
 public class HospitalSetController {
     @Autowired
     private HospitalSetService hospitalSetService;
