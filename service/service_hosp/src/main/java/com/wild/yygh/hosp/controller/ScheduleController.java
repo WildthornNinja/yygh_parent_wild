@@ -2,6 +2,7 @@ package com.wild.yygh.hosp.controller;
 
 import com.wild.yygh.common.R;
 import com.wild.yygh.hosp.service.ScheduleService;
+import com.wild.yygh.model.hosp.Schedule;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @Api(tags = "排班接口")
@@ -37,5 +39,22 @@ public class ScheduleController {
         Map<String, Object> map
                 = scheduleService.getScheduleRule(page, limit, hoscode, depcode);
         return R.ok().data(map);
+    }
+
+    /**
+     * 根据医院编号 、科室编号和工作日期，查询排班详细信息
+     *
+     * @param hoscode
+     * @param depcode
+     * @param workDate
+     * @return
+     */
+    @ApiOperation(value = "查询排班详细信息")
+    @GetMapping("getScheduleDetail/{hoscode}/{depcode}/{workDate}")
+    public R getScheduleDetail(@PathVariable String hoscode,
+                               @PathVariable String depcode,
+                               @PathVariable String workDate) {
+        List<Schedule> list = scheduleService.getScheduleDetail(hoscode, depcode, workDate);
+        return R.ok().data("list", list);
     }
 }

@@ -143,4 +143,20 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
         return result;
     }
+
+    /**
+     * 查询科室名称
+     *
+     * @param hoscode
+     * @param depcode
+     * @return
+     */
+    @Override
+    public String getDepName(String hoscode, String depcode) {
+        Department department = departmentRepository.getDepartmentByHoscodeAndDepcode(hoscode, depcode);
+        if (department == null) {
+            throw new YyghException(20001, "科室信息有误");
+        }
+        return department.getDepname();
+    }
 }

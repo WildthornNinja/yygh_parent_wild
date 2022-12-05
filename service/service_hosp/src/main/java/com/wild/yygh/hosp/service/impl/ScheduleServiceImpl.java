@@ -3,6 +3,7 @@ package com.wild.yygh.hosp.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.hosp.repository.ScheduleRepository;
+import com.wild.yygh.hosp.service.DepartmentService;
 import com.wild.yygh.hosp.service.HospitalService;
 import com.wild.yygh.hosp.service.ScheduleService;
 import com.wild.yygh.model.hosp.Department;
@@ -33,6 +34,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     private MongoTemplate mongoTemplate;
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private DepartmentService departmentService;
 
     /**
      * 上传排班
@@ -180,6 +183,46 @@ public class ScheduleServiceImpl implements ScheduleService {
         baseMap.put("hosname", hosName);
         result.put("baseMap", baseMap);
         return result;
+    }
+
+    /**
+     * 根据医院编号 、科室编号和工作日期，查询排班详细信息
+     *
+     * @param hoscode
+     * @param depcode
+     * @param workDate
+     * @return
+     */
+    @Override
+    public List<Schedule> getScheduleDetail(String hoscode, String depcode, String workDate) {
+        //1.根据参数查询排班集合
+        //创建返回结果集
+        List<Schedule> list = scheduleRepository.getByHoscodeAndDepcodeAndWorkDate(
+                hoscode, depcode, new DateTime(workDate).toDate()
+        );
+        //2.翻译字段
+        list.forEach(item -> {
+            this.packageSchedule(item);
+        });
+        return list;
+
+    }
+
+    /**
+     * 字段翻译
+     *
+     * @param schedule
+     * @return
+     */
+    private Schedule packageSchedule(Schedule schedule) {
+        //设置医院名称
+        schedule.getParam().put("hosname", hospitalService.getHospName(schedule.getHoscode()));
+        //设置科室名称
+        schedule.getParam().put("depname",
+                departmentService.getDepName(schedule.getHoscode(), schedule.getDepcode()));
+        //设置日期对应星期
+        schedule.getParam().put("dayOfWeek", this.getDayOfWeek(new DateTime(schedule.getWorkDate())));
+        return schedule;
     }
 
 

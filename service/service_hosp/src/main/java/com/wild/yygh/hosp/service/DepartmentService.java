@@ -40,4 +40,13 @@ public interface DepartmentService {
      * @return
      */
     List<DepartmentVo> findDeptTree(String hoscode);
+
+    /**
+     * 获取科室名称
+     *
+     * @param hoscode
+     * @param depcode
+     * @return
+     */
+    String getDepName(String hoscode, String depcode);
 }
