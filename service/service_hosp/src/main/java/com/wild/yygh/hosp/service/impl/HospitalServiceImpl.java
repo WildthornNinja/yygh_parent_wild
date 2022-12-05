@@ -2,6 +2,7 @@ package com.wild.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wild.yygh.cmn.client.DictFeignClient;
+import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.enums.DictEnum;
 import com.wild.yygh.hosp.repository.HospitalRepository;
 import com.wild.yygh.hosp.service.HospitalService;
@@ -142,6 +143,19 @@ public class HospitalServiceImpl implements HospitalService {
         result.put("hospital", hospital);
         result.put("bookingRule", bookingRule);
         return result;
+    }
+
+    /**
+     * @param hoscode
+     * @return
+     */
+    @Override
+    public String getHospName(String hoscode) {
+        Hospital hospital = hospitalRepository.getByHoscode(hoscode);
+        if (hospital == null) {
+            throw new YyghException(20001, "医院信息有误");
+        }
+        return hospital.getHosname();
     }
 
     /**

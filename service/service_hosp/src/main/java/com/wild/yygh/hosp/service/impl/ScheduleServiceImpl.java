@@ -3,25 +3,40 @@ package com.wild.yygh.hosp.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.wild.yygh.common.exception.YyghException;
 import com.wild.yygh.hosp.repository.ScheduleRepository;
+import com.wild.yygh.hosp.service.HospitalService;
 import com.wild.yygh.hosp.service.ScheduleService;
 import com.wild.yygh.model.hosp.Department;
 import com.wild.yygh.model.hosp.Schedule;
+import com.wild.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.wild.yygh.vo.hosp.ScheduleQueryVo;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private ScheduleRepository scheduleRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 上传排班
+     *
      * @param paramMap
      */
     @Override
@@ -90,11 +105,116 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void remove(String hoscode, String hosScheduleId) {
         //先查询后删除
         //1.根据 hoscode、hosScheduleId
-        Schedule schedule = scheduleRepository.getScheduleByHoscodeAndHosScheduleId(hoscode,hosScheduleId);
-        if(schedule ==null){
-            throw new YyghException(20001,"排班信息有误");
+        Schedule schedule = scheduleRepository.getScheduleByHoscodeAndHosScheduleId(hoscode, hosScheduleId);
+        if (schedule == null) {
+            throw new YyghException(20001, "排班信息有误");
         }
         //2.根据id删除科室
         scheduleRepository.deleteById(schedule.getId());
+    }
+
+    /**
+     * 根据医院编号 和 科室编号 ，查询排班统计数据
+     *
+     * @param page
+     * @param limit
+     * @param hoscode
+     * @param depcode
+     * @return
+     */
+    @Override
+    public Map<String, Object> getScheduleRule(long page, long limit, String hoscode, String depcode) {
+        //1.定义最终返回对象
+        Map<String, Object> result = new HashMap<>();
+        //2.带条件带分页聚合查询(返回List集合)
+        //2.1创建查询条件对象
+        Criteria criteria = Criteria.where("hoscode").is(hoscode).and("depcode").is(depcode);
+        //2.2创建聚合查询对象
+        //拼MongoDB聚合查询语句
+        Aggregation aggregation = Aggregation.newAggregation(
+                //2.2.1设置筛选条件，缩小数据范围
+                Aggregation.match(criteria),
+                //2.2.2设置分组聚合信息
+                Aggregation.group("workDate")
+                        .first("workDate").as("workDate")
+                        .count().as("docCount")
+                        .sum("reservedNumber").as("reservedNumber")
+                        .sum("availableNumber").as("availableNumber"),
+                //2.2.3 排序
+                Aggregation.sort(Sort.Direction.ASC, "workDate"),
+                //2.2.4 分页
+                Aggregation.skip((page - 1) * limit),
+                Aggregation.limit(limit)
+        );
+        //2.3进行聚合查询
+        AggregationResults<BookingScheduleRuleVo> aggregate = mongoTemplate.
+                aggregate(aggregation, Schedule.class, BookingScheduleRuleVo.class);
+        List<BookingScheduleRuleVo> bookingScheduleRuleVoList = aggregate.getMappedResults();
+        //3.获取总记录数total【带条件聚合查询(返回total)
+        //3.1创建聚合查询对象
+        Aggregation aggTotal = Aggregation.newAggregation(
+                //3.1.1设置筛选条件
+                Aggregation.match(criteria),
+                //3.1.2设置分组信息
+                Aggregation.group("workDate")
+        );
+        //3.2进行聚合查询
+        AggregationResults<BookingScheduleRuleVo> aggregateTotal = mongoTemplate.aggregate(aggTotal, Schedule.class, BookingScheduleRuleVo.class);
+        List<BookingScheduleRuleVo> totalList = aggregateTotal.getMappedResults();
+        //3.3获取长度
+        int total = totalList.size();
+        //4.判断星期天数，周几(借助工具)
+        for (BookingScheduleRuleVo bookingScheduleRuleVo : bookingScheduleRuleVoList) {
+            Date workDate = bookingScheduleRuleVo.getWorkDate();
+            String dayOfWeek = this.getDayOfWeek(new DateTime(workDate));
+            bookingScheduleRuleVo.setDayOfWeek(dayOfWeek);
+        }
+        //5.封装数据
+        result.put("bookingScheduleRuleList", bookingScheduleRuleVoList);
+        result.put("total", total);
+        //6.补全返回前端页面的数据
+        //获取医院名称
+        String hosName = hospitalService.getHospName(hoscode);
+        //其他基础数据
+        Map<String, String> baseMap = new HashMap<>();
+        baseMap.put("hosname", hosName);
+        result.put("baseMap", baseMap);
+        return result;
+    }
+
+
+    /**
+     * 根据日期获取周几数据
+     *
+     * @param dateTime
+     * @return
+     */
+    private String getDayOfWeek(DateTime dateTime) {
+        String dayOfWeek = "";
+        switch (dateTime.getDayOfWeek()) {
+            case DateTimeConstants.SUNDAY:
+                dayOfWeek = "周日";
+                break;
+            case DateTimeConstants.MONDAY:
+                dayOfWeek = "周一";
+                break;
+            case DateTimeConstants.TUESDAY:
+                dayOfWeek = "周二";
+                break;
+            case DateTimeConstants.WEDNESDAY:
+                dayOfWeek = "周三";
+                break;
+            case DateTimeConstants.THURSDAY:
+                dayOfWeek = "周四";
+                break;
+            case DateTimeConstants.FRIDAY:
+                dayOfWeek = "周五";
+                break;
+            case DateTimeConstants.SATURDAY:
+                dayOfWeek = "周六";
+            default:
+                break;
+        }
+        return dayOfWeek;
     }
 }
